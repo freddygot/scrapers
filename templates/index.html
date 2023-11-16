@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat med Assistenten</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Chat med Assistenten</h1>
+    <div id="chat">
+        <!-- Her vil chat-meldingene vises -->
+    </div>
+    <input type="text" id="user_message" placeholder="Skriv din melding her...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        function sendMessage() {
+            var userMessage = $('#user_message').val();
+            $.post('/message', {message: userMessage}, function(response) {
+                $('#chat').append('<p>Du: ' + userMessage + '</p>');
+                $('#chat').append('<p>Assistent: ' + response.response + '</p>'); // Oppdatert for å håndtere JSON-respons
+                $('#user_message').val('');
+            }, 'json');  // Sørg for at responsen håndteres som JSON
+        }
+    </script>
+</body>
+</html>
