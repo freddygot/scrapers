@@ -10,7 +10,7 @@ def hent_psykologer_fra_dinpsykolog():
     psykologer = []
     base_url = "https://dinpsykolog.no/?page={}&username=&village=oslo&gender=&age="
 
-    for side in range(1, antall_sider + 1):  # Anta et visst antall sider å skrape
+    for side in range(1, antall_sider + 1):
         url = base_url.format(side)
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -18,12 +18,17 @@ def hent_psykologer_fra_dinpsykolog():
         for div in soup.find_all('div', class_='list_item'):
             navn = div.find('h4').get_text(strip=True)
             profilbilde_url = div.find('div', class_='list_img').find('img')['src']
+            full_profilbilde_url = f"https://dinpsykolog.no{profilbilde_url}"
             profil_url = div.find('a', class_='link_btn')['href']
             full_profil_url = f"https://dinpsykolog.no{profil_url}"
 
+            # Last ned bildet
+            bilde_response = requests.get(full_profilbilde_url)
+            profilbilde_data = bilde_response.content if bilde_response.status_code == 200 else None
+
             psykolog = {
                 'navn': navn,
-                'profilbilde_url': profilbilde_url,
+                'profilbilde_data': profilbilde_data,  # Lagrer det binære innholdet av bildet
                 'dinpsykologlink': full_profil_url
             }
             psykologer.append(psykolog)
@@ -76,7 +81,7 @@ def finn_eller_opprett_institusjon(psykolog_navn):
     return institusjon.id
 
 
-def hent_detaljer_fra_profil(url, navn):
+def hent_detaljer_fra_profil(url, navn, profilbilde_data):
     with app.app_context():
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -133,10 +138,22 @@ def hent_detaljer_fra_profil(url, navn):
         else:
             print(f"Ingen problemområder funnet for {navn}")
 
-        #Sjekk om psykologen allerede eksisterer i databasen
         eksisterende_psykolog = HelsePersonell.query.filter_by(navn=navn).first()
         if eksisterende_psykolog:
-            # [Oppdater eksisterende HelsePersonell ...]
+            # Oppdater kun tomme felt for den eksisterende psykologen
+            if not eksisterende_psykolog.fødselsår and fødselsår:
+                eksisterende_psykolog.fødselsår = fødselsår
+            if not eksisterende_psykolog.profilbilde:
+                eksisterende_psykolog.profilbilde = profilbilde_data  
+            if not eksisterende_psykolog.telefonnummer and telefonnummer:
+                eksisterende_psykolog.telefonnummer = telefonnummer
+            if not eksisterende_psykolog.epost and epost:
+                eksisterende_psykolog.epost = epost
+            if not eksisterende_psykolog.Selvrapport and selvrapport:
+                eksisterende_psykolog.Selvrapport = selvrapport
+            # ... [Gjenta for andre felt etter behov]
+
+            db.session.commit()
             helse_personell_id = eksisterende_psykolog.id
         else:
             # Finn eller opprett en institusjon for psykologen
@@ -144,6 +161,7 @@ def hent_detaljer_fra_profil(url, navn):
             # Oppretter ny HelsePersonell-instans
             ny_helse_personell = HelsePersonell(
                 navn=navn,
+                profilbilde=profilbilde_data,
                 fødselsår=fødselsår,
                 telefonnummer=telefonnummer,
                 epost=epost,
@@ -180,7 +198,7 @@ def hent_detaljer_fra_profil(url, navn):
 def main():
     psykologer = hent_psykologer_fra_dinpsykolog()
     for psykolog in psykologer:
-        detaljer_id = hent_detaljer_fra_profil(psykolog['dinpsykologlink'], psykolog['navn'])
+        detaljer_id = hent_detaljer_fra_profil(psykolog['dinpsykologlink'], psykolog['navn'], psykolog['profilbilde_data'])
         print(f"Hentet detaljer for psykolog med ID: {detaljer_id}")
 
 if __name__ == "__main__":

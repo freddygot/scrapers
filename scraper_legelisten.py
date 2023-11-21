@@ -7,7 +7,7 @@ def hent_psykologer_fra_liste():
     psykologer = []
     base_url = "https://www.legelisten.no/psykologer/Oslo?side="
 
-    for side in range(1, 94):  # Iterer fra side 1 til 93
+    for side in range(1,5):  # Iterer fra side 1 til 93
         url = f"{base_url}{side}"
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -84,19 +84,23 @@ def lagre_til_database(psykolog, tjeneste_kategori):
                 adresse=psykolog['adresse'],
                 postal_code=psykolog['postal_code'],
                 by=psykolog['by'],
-                tjenestekategori_id=tjeneste_kategori.id,
-                telefonnummer=psykolog['telefonnummer'],
-                hjemmeside=psykolog['hjemmeside']
+                tjenestekategori_id=tjeneste_kategori.id
+                # Merk: Telefonnummer og hjemmeside legges ikke her fordi det hører til HelsePersonell
             )
             db.session.add(institusjon)
-            print(f"Institusjon lagt til: {institusjon.navn}")  # Print for å vise at institusjon er lagt til
         else:
-            institusjon.telefonnummer = psykolog['telefonnummer']
-            institusjon.hjemmeside = psykolog['hjemmeside']
+            # Oppdater kun tomme felt for den eksisterende institusjonen
+            if not institusjon.adresse and psykolog['adresse']:
+                institusjon.adresse = psykolog['adresse']
+            if not institusjon.postal_code and psykolog['postal_code']:
+                institusjon.postal_code = psykolog['postal_code']
+            if not institusjon.by and psykolog['by']:
+                institusjon.by = psykolog['by']
+            # Ikke oppdater tjenestekategori_id, antar at den forblir konstant
 
         db.session.commit()
 
-        # Opprett HelsePersonell
+        # Opprett eller oppdater HelsePersonell
         personell = HelsePersonell.query.filter_by(navn=psykolog['navn'], institusjon_id=institusjon.id).first()
         if not personell:
             personell = HelsePersonell(
@@ -104,12 +108,24 @@ def lagre_til_database(psykolog, tjeneste_kategori):
                 tittel='Psykolog',
                 kjønn=psykolog['kjønn'],
                 Legelistelink=psykolog['legelistelink'],
-                institusjon_id=institusjon.id
+                institusjon_id=institusjon.id,
+                telefonnummer=psykolog['telefonnummer'],
+            
             )
             db.session.add(personell)
-            db.session.commit()
+        else:
+            # Oppdater kun tomme felt for den eksisterende personellen
+            if not personell.telefonnummer and psykolog['telefonnummer']:
+                personell.telefonnummer = psykolog['telefonnummer']
+            if not personell.hjemmeside and psykolog['hjemmeside']:
+                personell.hjemmeside = psykolog['hjemmeside']
+            # Ikke endre tittel og kjønn da disse sannsynligvis forblir konstante
 
-            # Opprett Anmeldelse og knytt den til HelsePersonell
+        db.session.commit()
+
+        # Opprett Anmeldelse og knytt den til HelsePersonell
+        anmeldelse = Anmeldelse.query.filter_by(personell_id=personell.id).first()
+        if not anmeldelse:
             anmeldelse = Anmeldelse(
                 rating=psykolog['rating'],
                 personell_id=personell.id

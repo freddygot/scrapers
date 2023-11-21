@@ -50,7 +50,7 @@ class HelsePersonell(db.Model):
     Selvrapport = db.Column(db.String(600))
     telefonnummer = db.Column(db.Integer)
     epost = db.Column(db.String(100))
-    profilbilde = db.Column(db.String(200))
+    profilbilde = db.Column(db.LargeBinary)
     institusjon_id = db.Column(db.Integer, db.ForeignKey('helse_institusjon.id'), nullable=False)
     tjeneste_tilbud = db.relationship('TjenesteTilbud', backref='helse_personell', lazy=True)
     anmeldelser = db.relationship('Anmeldelse', backref='helse_personell', lazy=True)
