@@ -112,6 +112,9 @@ def hent_detaljer_fra_profil(url, navn, profilbilde_data):
         content_textarea = soup.find('textarea', attrs={'name': 'bodycontent'})
         selvrapport = content_textarea.get_text() if content_textarea else None
 
+        # Sjekk om teksten inneholder ordet "psykiater" og sett tittelen tilsvarende
+        tittel = "Psykiater" if selvrapport and "psykiater" in selvrapport.lower() else None
+
         # Hent problemområder
         problemområde_labels = {
             '1101': 'Angst',
@@ -141,6 +144,11 @@ def hent_detaljer_fra_profil(url, navn, profilbilde_data):
         eksisterende_psykolog = HelsePersonell.query.filter_by(navn=navn).first()
         if eksisterende_psykolog:
             # Oppdater kun tomme felt for den eksisterende psykologen
+            if tittel and not eksisterende_psykolog.tittel:
+                eksisterende_psykolog.tittel = tittel
+            if not eksisterende_psykolog.profilbilde:
+                eksisterende_psykolog.profilbilde = profilbilde_data
+            # Oppdater kun tomme felt for den eksisterende psykologen
             if not eksisterende_psykolog.fødselsår and fødselsår:
                 eksisterende_psykolog.fødselsår = fødselsår
             if not eksisterende_psykolog.profilbilde:
@@ -161,6 +169,7 @@ def hent_detaljer_fra_profil(url, navn, profilbilde_data):
             # Oppretter ny HelsePersonell-instans
             ny_helse_personell = HelsePersonell(
                 navn=navn,
+                tittel=tittel if tittel else "Psykolog",
                 profilbilde=profilbilde_data,
                 fødselsår=fødselsår,
                 telefonnummer=telefonnummer,
