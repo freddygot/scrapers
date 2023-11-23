@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Importer alle modellene etter SQLAlchemy initialisering
-import models
+import modelsny
 
 # Initialiser Flask-Migrate
 migrate = Migrate(app, db)

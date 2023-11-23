@@ -1,4 +1,4 @@
-from app import db
+
 
 #Førstlinje, andrelinje og tredjelinje
 class TjenesteNiva(db.Model):
