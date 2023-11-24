@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from models import Anmeldelse, HelsePersonell, HelseInstitusjon, TjenesteKategori, Sektor, TjenesteNiva, db
 from app import app
+import models 
+
 
 def hent_psykologer_fra_liste():
     psykologer = []
