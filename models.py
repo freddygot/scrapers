@@ -110,10 +110,16 @@ class Psychologist(db.Model):
     __tablename__ = 'psychologist'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(100))
+    birth_year = db.Column(db.Integer)
+    profile_picture = db.Column(db.LargeBinary)
+    self_report = db.Column(db.String(600))
+    waiting_time = db.Column(db.String(100))
     clinic_id = db.Column(db.Integer, db.ForeignKey('private_clinic.id'), nullable=True)
     methods = db.relationship('Method', secondary=psychologist_method, back_populates='psychologists')
     work_forms = db.relationship('WorkForm', secondary=psychologist_work_form, back_populates='psychologists')
     problem_areas = db.relationship('ProblemArea', secondary=psychologist_problem_area, back_populates='psychologists')
+
 
 class Psychiatrist(db.Model):
     __tablename__ = 'psychiatrist'

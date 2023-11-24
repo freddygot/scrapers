@@ -1,9 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from app import app, db  # Endret import her
-from models import Psychologist  # Importerer Psychologist fra models.py
+from app import app, db
+from models import Psychologist
 
+# Denne blokken sørger for at all kode kjører i applikasjonskonteksten
 with app.app_context():
     url = "https://dinpsykolog.no/?page=1&username=&village=oslo&gender=&age="
     response = requests.get(url)
@@ -19,16 +20,18 @@ with app.app_context():
 
         # Opprett og legg til ny Psychologist-instans i databasen
         psychologist = Psychologist(name=psychologist_name)
+        print(psychologist_name)
+
+        selected_option = profile_soup.find("select", {"id": "bornyear"}).find("option", selected=True)
+        if selected_option is not None:
+            birth_year = selected_option["value"]
+            psychologist.birth_year = birth_year
+            print(birth_year)
+        else:
+            print("No birth year found")
+
         db.session.add(psychologist)
         db.session.commit()
-
-    print(psychologist_name)
-    selected_option = profile_soup.find("select", {"id": "bornyear"}).find("option", selected=True)
-    if selected_option is not None:
-        birth_year = selected_option["value"]
-        print(birth_year)
-    else:
-        print("No birth year found")
     gender_radio = profile_soup.find("input", {"name": "gender", "checked": True})
     if gender_radio is not None:
         gender = gender_radio.parent.text.strip()

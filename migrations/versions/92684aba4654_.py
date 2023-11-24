@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 52477db7293f
+Revision ID: 92684aba4654
 Revises: 
-Create Date: 2023-11-24 15:39:04.873213
+Create Date: 2023-11-24 22:33:40.396841
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '52477db7293f'
+revision = '92684aba4654'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -48,7 +48,6 @@ def upgrade():
     op.create_table('general_practitioner_office',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('waiting_time', sa.String(length=100), nullable=True),
     sa.Column('sector_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['sector_id'], ['sector.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -63,7 +62,6 @@ def upgrade():
     op.create_table('private_clinic',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('waiting_time', sa.String(length=100), nullable=True),
     sa.Column('sector_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['sector_id'], ['sector.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -92,11 +90,6 @@ def upgrade():
     op.create_table('general_practitioner',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('title', sa.String(length=100), nullable=True),
-    sa.Column('birth_year', sa.Integer(), nullable=True),
-    sa.Column('profile_picture', sa.LargeBinary(), nullable=True),
-    sa.Column('self_report', sa.String(length=600), nullable=True),
-    sa.Column('waiting_time', sa.String(length=100), nullable=True),
     sa.Column('office_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['office_id'], ['general_practitioner_office.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -104,11 +97,6 @@ def upgrade():
     op.create_table('psychiatrist',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('title', sa.String(length=100), nullable=True),
-    sa.Column('birth_year', sa.Integer(), nullable=True),
-    sa.Column('profile_picture', sa.LargeBinary(), nullable=True),
-    sa.Column('self_report', sa.String(length=600), nullable=True),
-    sa.Column('waiting_time', sa.String(length=100), nullable=True),
     sa.Column('clinic_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['clinic_id'], ['private_clinic.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -116,11 +104,6 @@ def upgrade():
     op.create_table('psychologist',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('title', sa.String(length=100), nullable=True),
-    sa.Column('birth_year', sa.Integer(), nullable=True),
-    sa.Column('profile_picture', sa.LargeBinary(), nullable=True),
-    sa.Column('self_report', sa.String(length=600), nullable=True),
-    sa.Column('waiting_time', sa.String(length=100), nullable=True),
     sa.Column('clinic_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['clinic_id'], ['private_clinic.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -128,7 +111,6 @@ def upgrade():
     op.create_table('dps_department',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('waiting_time', sa.String(length=100), nullable=True),
     sa.Column('dps_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['dps_id'], ['district_psychiatric_center.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -232,7 +214,6 @@ def upgrade():
     op.create_table('dps_subdepartment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('waiting_time', sa.String(length=100), nullable=True),
     sa.Column('department_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['department_id'], ['dps_department.id'], ),
     sa.PrimaryKeyConstraint('id')
