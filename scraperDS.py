@@ -30,14 +30,16 @@ with app.app_context():
         else:
             print("No birth year found")
 
+        gender_radio = profile_soup.find("input", {"name": "gender", "checked": True})
+        if gender_radio is not None:
+            gender = gender_radio.parent.text.strip()
+            psychologist.gender = gender
+            print(gender)
+        else:
+            print("No gender found")
+
         db.session.add(psychologist)
         db.session.commit()
-    gender_radio = profile_soup.find("input", {"name": "gender", "checked": True})
-    if gender_radio is not None:
-        gender = gender_radio.parent.text.strip()
-        print(gender)
-    else:
-        print("No gender found")
     profile_photo = profile_soup.find("img", {"height": "200"})
     if profile_photo is not None:
         profile_photo_url = profile_photo["src"]

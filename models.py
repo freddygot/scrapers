@@ -112,6 +112,7 @@ class Psychologist(db.Model):
     name = db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(100))
     birth_year = db.Column(db.Integer)
+    gender = db.Column(db.String(100))
     profile_picture = db.Column(db.LargeBinary)
     self_report = db.Column(db.String(600))
     waiting_time = db.Column(db.String(100))
