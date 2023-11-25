@@ -4,7 +4,6 @@ import re
 from app import app, db
 from models import Psychologist
 
-# Denne blokken sørger for at all kode kjører i applikasjonskonteksten
 with app.app_context():
     url = "https://dinpsykolog.no/?page=1&username=&village=oslo&gender=&age="
     response = requests.get(url)
@@ -20,44 +19,64 @@ with app.app_context():
 
         # Opprett og legg til ny Psychologist-instans i databasen
         psychologist = Psychologist(name=psychologist_name)
-        print(psychologist_name)
-
+        db.session.add(psychologist)
+        db.session.commit()
+        
         selected_option = profile_soup.find("select", {"id": "bornyear"}).find("option", selected=True)
         if selected_option is not None:
             birth_year = selected_option["value"]
             psychologist.birth_year = birth_year
             print(birth_year)
+            db.session.add(psychologist)
+            db.session.commit()
         else:
             print("No birth year found")
-
+    
         gender_radio = profile_soup.find("input", {"name": "gender", "checked": True})
         if gender_radio is not None:
             gender = gender_radio.parent.text.strip()
             psychologist.gender = gender
             print(gender)
+            db.session.add(psychologist)
+            db.session.commit()
         else:
             print("No gender found")
+        
+        profile_photo_div = profile_soup.find("div", class_="profile_img_section")
+        if profile_photo_div:
+            profile_photo_img = profile_photo_div.find("img")
+            if profile_photo_img and profile_photo_img.has_attr("src"):
+                profile_photo_url = profile_photo_img["src"]
+            # Sjekk om URL-en trenger å bli fullstendig (noen ganger kan den være relativ)
+            if not profile_photo_url.startswith("http"):
+                profile_photo_url = "https://dinpsykolog.no" + profile_photo_url
+            print(profile_photo_url)
+            psychologist.profile_picture = profile_photo_url  # Lagrer URL-en til profilbilde
+        else:
+            print("Profile photo not found")
+            psychologist.profile_picture = None
+            db.session.add(psychologist)
+            db.session.commit()
 
-        db.session.add(psychologist)
-        db.session.commit()
-    profile_photo = profile_soup.find("img", {"height": "200"})
-    if profile_photo is not None:
-        profile_photo_url = profile_photo["src"]
-        print(profile_photo_url)
-    else:
-        print("No profile photo found")
-    phone_number_input = profile_soup.find("input", {"name": "phonenumber"})
-    if phone_number_input is not None:
-        phone_number = phone_number_input["value"]
-        print(phone_number)
-    else:
-        print("No phone number found")
+        phone_number_input = profile_soup.find("input", {"name": "phonenumber"})
+        if phone_number_input is not None:
+            phone_number = phone_number_input["value"]
+            print(phone_number)
+            psychologist.phone_number = phone_number
+            db.session.add(psychologist)
+            db.session.commit()
+        else:
+            print("No phone number found")
+
     email_address_input = profile_soup.find("input", {"name": "emailaddress"})
     if email_address_input is not None:
         email_address = email_address_input["value"]
         print(email_address)
     else:
         print("No email address found")
+
+    db.session.add(psychologist)
+    
 
     self_report_textarea = profile_soup.find("textarea", {"name": "bodycontent"})
     if self_report_textarea is not None:
