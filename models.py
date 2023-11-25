@@ -102,6 +102,9 @@ class PrivateClinic(db.Model):
     __tablename__ = 'private_clinic'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    adress = db.Column(db.String(100), nullable=False)
+    postal_code = db.Column(db.Integer, nullable=False)
+    website = db.Column(db.String(100))
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'), nullable=False)
     psychologists = db.relationship('Psychologist', backref='clinic', lazy=True)
     psychiatrists = db.relationship('Psychiatrist', backref='clinic', lazy=True)
