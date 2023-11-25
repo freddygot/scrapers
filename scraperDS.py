@@ -78,18 +78,15 @@ with app.app_context():
         else:
             print("No email address found")
 
-    
-    
-
-    self_report_textarea = profile_soup.find("textarea", {"name": "bodycontent"})
-    if self_report_textarea is not None:
-        self_report_content = self_report_textarea.get_text(strip=True)
-        if self_report_content:
+        self_report_textarea = profile_soup.find("textarea", {"name": "bodycontent"})
+        if self_report_textarea is not None:
+            self_report_content = self_report_textarea.get_text(strip=True)
+            psychologist.self_report = self_report_content
+            db.session.add(psychologist)
+            db.session.commit()
             print(self_report_content)
         else:
-            print("No self-report content found")
-    else:
-        print("No self-report textarea found")
+            print("No self-report textarea found")
 
     problem_areas = profile_soup.find_all("input", {"type": "checkbox", "checked": True})
     problem_areas_labels = [area.parent.text.strip() for area in problem_areas if area.parent.text.strip() in ["Angst", "Stress", "Utbrenthet", "Uro", "Depresjon", "Selvfølelse", "Avhengighet", "Spiseforstyrrelser", "Kroppslige plager", "Lærevasker", "ADHD", "Atferdsproblemer"]]
