@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from app import app, db
-from models import Psychologist, ProblemArea, psychologist_problem_area 
+from models import Psychologist, ProblemArea, psychologist_problem_area, Method, psychologist_method
 
 with app.app_context():
     url = "https://dinpsykolog.no/?page=1&username=&village=oslo&gender=&age="
@@ -109,13 +109,29 @@ with app.app_context():
 
         # Commit endringer etter å ha lagt til alle problemområder
         db.session.commit()
+        
+        # Skrap metoder
+        metoder = profile_soup.find_all("input", {"type": "checkbox", "checked": True, "name": "methods"})
+        metode_labels = [metode.parent.text.strip() for metode in metoder]
+
+        # Lagre metodene i Method-tabellen og opprett assosiasjon mellom psykolog og metode
+        for metode_label in metode_labels:
+            metode = Method.query.filter_by(description=metode_label).first()
+
+            # Hvis ikke, opprett en ny metode og lagre den
+            if not metode:
+                metode = Method(description=metode_label)
+                db.session.add(metode)
+                db.session.commit()
+
+            # Legg til metoden i psykologens liste over metoder
+            psychologist.methods.append(metode)
+
+        # Commit endringer etter å ha lagt til alle metoder
+        db.session.commit()
 
 
-  
-
-
-            
-            
+       
     methodologies = profile_soup.find_all("input", {"type": "checkbox", "checked": True, "name": "methods"})
     methodologies_labels = [method.parent.text.strip() for method in methodologies if method.parent.text.strip() in ["Kognitiv atferdsterapi", "Metakognitiv terapi", "Motiverende intervju", "Multisystemisk terapi", "Kognitiv trening", "EMDR", "Mindfulness", "Aksept og forpliktelsesterapi", "Dynamisk terapi"]]
     print(methodologies_labels)
