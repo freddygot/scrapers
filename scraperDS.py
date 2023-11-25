@@ -68,14 +68,17 @@ with app.app_context():
         else:
             print("No phone number found")
 
-    email_address_input = profile_soup.find("input", {"name": "emailaddress"})
-    if email_address_input is not None:
-        email_address = email_address_input["value"]
-        print(email_address)
-    else:
-        print("No email address found")
+        email_address_input = profile_soup.find("input", {"name": "emailaddress"})
+        if email_address_input is not None:
+            email_address = email_address_input["value"]
+            print(email_address)
+            psychologist.email = email_address
+            db.session.add(psychologist)
+            db.session.commit()       
+        else:
+            print("No email address found")
 
-    db.session.add(psychologist)
+    
     
 
     self_report_textarea = profile_soup.find("textarea", {"name": "bodycontent"})
