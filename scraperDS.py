@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from app import app, db
-from models import Psychologist
+from models import Psychologist, ProblemArea, psychologist_problem_area 
 
 with app.app_context():
     url = "https://dinpsykolog.no/?page=1&username=&village=oslo&gender=&age="
@@ -88,9 +88,34 @@ with app.app_context():
         else:
             print("No self-report textarea found")
 
-    problem_areas = profile_soup.find_all("input", {"type": "checkbox", "checked": True})
-    problem_areas_labels = [area.parent.text.strip() for area in problem_areas if area.parent.text.strip() in ["Angst", "Stress", "Utbrenthet", "Uro", "Depresjon", "Selvfølelse", "Avhengighet", "Spiseforstyrrelser", "Kroppslige plager", "Lærevasker", "ADHD", "Atferdsproblemer"]]
-    print(problem_areas_labels)
+        # Skrap problemområder
+        problem_areas = profile_soup.find_all("input", {"type": "checkbox", "checked": True})
+        problem_areas_labels = [area.parent.text.strip() for area in problem_areas if area.parent.text.strip() in ["Angst", "Stress", "Utbrenthet", "Uro", "Depresjon", "Selvfølelse", "Avhengighet", "Spiseforstyrrelser", "Kroppslige plager", "Lærevansker", "ADHD", "Atferdsproblemer"]]
+        print(problem_areas_labels)
+
+        # Lagre problemområdene i problem_area-tabellen og opprett assosiasjon mellom psykolog og problemområde
+        for problem_area_label in problem_areas_labels:
+            # Sjekk først om problemområdet allerede finnes i databasen
+            problem_area = ProblemArea.query.filter_by(description=problem_area_label).first()
+
+            # Hvis ikke, opprett et nytt problemområde og lagre det
+            if not problem_area:
+                problem_area = ProblemArea(description=problem_area_label)
+                db.session.add(problem_area)
+                db.session.commit()
+
+            # Legg til problemområdet i psykologens liste over problemområder
+            psychologist.problem_areas.append(problem_area)
+
+        # Commit endringer etter å ha lagt til alle problemområder
+        db.session.commit()
+
+
+  
+
+
+            
+            
     methodologies = profile_soup.find_all("input", {"type": "checkbox", "checked": True, "name": "methods"})
     methodologies_labels = [method.parent.text.strip() for method in methodologies if method.parent.text.strip() in ["Kognitiv atferdsterapi", "Metakognitiv terapi", "Motiverende intervju", "Multisystemisk terapi", "Kognitiv trening", "EMDR", "Mindfulness", "Aksept og forpliktelsesterapi", "Dynamisk terapi"]]
     print(methodologies_labels)
