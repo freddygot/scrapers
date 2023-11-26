@@ -60,6 +60,11 @@ general_practitioner_services = db.Table('general_practitioner_services',
 	db.Column('general_practitioner_id', db.Integer, db.ForeignKey('general_practitioner.id'), primary_key=True),
 	db.Column('service_id', db.Integer, db.ForeignKey('service.id'), primary_key=True)
 )
+
+dps_subdepartment_method = db.Table('dps_subdepartment_method',
+    db.Column('dps_subdepartment_id', db.Integer, db.ForeignKey('dps_subdepartment.id'), primary_key=True),
+    db.Column('method_id', db.Integer, db.ForeignKey('method.id'), primary_key=True)
+)
 # Models
 class Sector(db.Model):
     __tablename__ = 'sector'
@@ -196,6 +201,7 @@ class Method(db.Model):
     description = db.Column(db.Text, nullable=False)
     psychologists = db.relationship('Psychologist', secondary=psychologist_method, back_populates='methods')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_method, back_populates='methods')
+    dps_subdepartment = db.relationship('DPSSubdepartment', secondary=dps_subdepartment_method, back_populates='methods')
     general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_method, back_populates='methods')
 
 
