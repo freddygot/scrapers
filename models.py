@@ -65,18 +65,27 @@ class Sector(db.Model):
     __tablename__ = 'sector'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    health_facilities = db.relationship('HealthTrust', backref='sector', lazy=True)
+    regional_health_trusts = db.relationship('RegionalHealthTrust', backref='sector', lazy=True)
+    health_trusts = db.relationship('HealthTrust', backref='sector', lazy=True)
     private_clinics = db.relationship('PrivateClinic', backref='sector', lazy=True)
     general_practitioner_offices = db.relationship('GeneralPractitionerOffice', backref='sector', lazy=True)
     psychiatric_emergency_departments = db.relationship('PsychiatricEmergencyDepartment', backref='sector', lazy=True)
     voluntary_organizations = db.relationship('VoluntaryOrganization', backref='sector', lazy=True)
+
+class RegionalHealthTrust(db.Model):
+    __tablename__ = 'regional_health_trust'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'), nullable=False)
+    health_trusts = db.relationship('HealthTrust', backref='regional_health_trust', lazy=True)
 
 class HealthTrust(db.Model):
     __tablename__ = 'health_trust'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'), nullable=False)
-    dps = db.relationship('DistrictPsychiatricCenter', backref='health_trust', lazy=True)
+    regional_health_trust_id = db.Column(db.Integer, db.ForeignKey('regional_health_trust.id'), nullable=False)
+    district_psychiatric_centers = db.relationship('DistrictPsychiatricCenter', backref='health_trust', lazy=True)
 
 class DistrictPsychiatricCenter(db.Model):
     __tablename__ = 'district_psychiatric_center'
