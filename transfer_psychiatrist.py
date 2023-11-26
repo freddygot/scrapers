@@ -1,11 +1,21 @@
 from app import app, db
-from models import Psychologist, Psychiatrist
+from models import Psychologist, Psychiatrist, PrivateClinic
 
 def transfer_psychiatrists():
     # Hent alle psykologer som faktisk er psykiatere basert på self_report
     psykiatere = Psychologist.query.filter(Psychologist.self_report.contains("Psykiater med")).all()
 
     for psykolog in psykiatere:
+        # Finn klinikken som er knyttet til psykologen
+        klinikk = PrivateClinic.query.get(psykolog.clinic_id)
+        print(klinikk)
+
+        # Endre navnet på klinikken hvis den eksisterer
+        if klinikk:
+            klinikk.name = f"Psykiater {psykolog.name}"
+            db.session.add(klinikk)
+            db.session.commit()  # Lagre endringen av klinikknavnet i databasen
+
         # Opprett en ny psykiaterinstans med tilsvarende data
         psykiater = Psychiatrist(
             name=psykolog.name,
@@ -29,9 +39,7 @@ def transfer_psychiatrists():
         # Legg til den nye psykiateren i databasen og slett den gamle psykologen
         db.session.add(psykiater)
         db.session.delete(psykolog)
-
-    # Commit endringene til databasen
-    db.session.commit()
+        db.session.commit()  # Commit endringene til databasen
 
 if __name__ == "__main__":
     with app.app_context():
