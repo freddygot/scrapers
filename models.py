@@ -91,6 +91,8 @@ class DistrictPsychiatricCenter(db.Model):
     __tablename__ = 'district_psychiatric_center'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    visitor_address = db.Column(db.String(100), nullable=False)
+    postal_address = db.Column(db.String(100), nullable=False)
     health_trust_id = db.Column(db.Integer, db.ForeignKey('health_trust.id'), nullable=False)
     departments = db.relationship('DPSDepartment', backref='dps', lazy=True)
 
@@ -98,6 +100,9 @@ class DPSDepartment(db.Model):
     __tablename__ = 'dps_department'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    about = db.Column(db.Text)
+    visitor_address = db.Column(db.String(100), nullable=False)
+    postal_address = db.Column(db.String(100), nullable=False)
     dps_id = db.Column(db.Integer, db.ForeignKey('district_psychiatric_center.id'), nullable=False)
     subdepartments = db.relationship('DPSSubdepartment', backref='department', lazy=True)
 
@@ -105,6 +110,9 @@ class DPSSubdepartment(db.Model):
     __tablename__ = 'dps_subdepartment'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    about = db.Column(db.Text)
+    visitor_address = db.Column(db.String(100), nullable=False)
+    postal_address = db.Column(db.String(100), nullable=False)
     department_id = db.Column(db.Integer, db.ForeignKey('dps_department.id'), nullable=False)
 
 class PrivateClinic(db.Model):
