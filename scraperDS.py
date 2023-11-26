@@ -2,16 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from app import app, db
-from models import Psychologist, ProblemArea, Method, PrivateClinic, Sector
+from models import Psychologist, Psychiatrist, ProblemArea, Method, PrivateClinic, Sector
 
 with app.app_context():
-    # Sørg for at sektoren "Privat sektor" eksisterer
-    privat_sektor = Sector.query.filter_by(name="Privat sektor").first()
-    if not privat_sektor:
-        privat_sektor = Sector(name="Privat sektor")
-        db.session.add(privat_sektor)
-        db.session.commit()
-
     for page in range(1, 30):  # Endret til 30 for å inkludere side 29
         url = f"https://dinpsykolog.no/?page={page}&username=&village=oslo&gender=&age="
         response = requests.get(url)

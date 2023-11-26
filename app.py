@@ -12,9 +12,6 @@ db = SQLAlchemy(app)
 # Initialiser Flask-Migrate
 migrate = Migrate(app, db)
 
-# Importer ruter etter å ha initialisert alle utvidelser
-import routes
-
 # Importer alle modellene etter SQLAlchemy initialisering
 import models
 
