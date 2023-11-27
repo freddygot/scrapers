@@ -12,6 +12,9 @@ db = SQLAlchemy(app)
 # Initialiser Flask-Migrate
 migrate = Migrate(app, db)
 
+app.config['SECRET_KEY'] = '1234'
+
+
 # Importer alle modellene etter SQLAlchemy initialisering
 import models
 

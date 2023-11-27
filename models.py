@@ -65,6 +65,11 @@ dps_subdepartment_method = db.Table('dps_subdepartment_method',
     db.Column('dps_subdepartment_id', db.Integer, db.ForeignKey('dps_subdepartment.id'), primary_key=True),
     db.Column('method_id', db.Integer, db.ForeignKey('method.id'), primary_key=True)
 )
+
+dps_subdepartment_problem_area = db.Table('dps_subdepartment_problem_area',
+    db.Column('dps_subdepartment_id', db.Integer, db.ForeignKey('dps_subdepartment.id'), primary_key=True),
+    db.Column('problem_area_id', db.Integer, db.ForeignKey('problem_area.id'), primary_key=True)
+)
 # Models
 class Sector(db.Model):
     __tablename__ = 'sector'
@@ -220,6 +225,7 @@ class ProblemArea(db.Model):
     description = db.Column(db.Text, nullable=False)
     psychologists = db.relationship('Psychologist', secondary=psychologist_problem_area, back_populates='problem_areas')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_problem_area, back_populates='problem_areas')
+    dps_subdepartment = db.relationship('DPSSubdepartment', secondary=dps_subdepartment_problem_area, back_populates='problem_areas')
     general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_problem_area, back_populates='problem_areas')
 
 class Service(db.Model):
