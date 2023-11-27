@@ -1,3 +1,8 @@
+from routes import app
+from app import db
+from models import Sector
+
+
 # Legge til en ny sektor
 def add_sector(name):
     new_sector = Sector(name=name)

@@ -1,6 +1,6 @@
-from flask import render_template, request, jsonify
-from app import app
-# Importer andre nødvendige moduler og funksjoner
+from flask import Flask, render_template, request, jsonify
+
+app = Flask(__name__)
 
 @app.route('/')
 def index():

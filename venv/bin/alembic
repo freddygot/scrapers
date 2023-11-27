@@ -1,4 +1,4 @@
-#!/Users/fredriklian/Desktop/psykiskhjelp/venv/bin/python3.11
+#!/Users/fredriklian/Desktop/scrapers/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
