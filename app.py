@@ -1,23 +1,26 @@
 from flask import Flask
+import render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+
+# Importer andre nødvendige moduler og funksjoner
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# ...resten av dine ruter...
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///psychologists.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialiser SQLAlchemy
 db = SQLAlchemy(app)
-
-# Initialiser Flask-Migrate
 migrate = Migrate(app, db)
 
-app.config['SECRET_KEY'] = '1234'
-
-
-# Importer alle modellene etter SQLAlchemy initialisering
 import models
 
-# Denne blokken vil kjøre kun når filen kjøres direkte
 if __name__ == "__main__":
+    import routes  # Importer ruter her
     app.run(debug=True)

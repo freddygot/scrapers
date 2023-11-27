@@ -1,6 +1,13 @@
-# routes.py
-from flask import render_template
+from flask import render_template, request, jsonify
 from app import app
+# Importer andre nødvendige moduler og funksjoner
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# ...resten av dine ruter...
+
 # Importer andre nødvendige moduler og funksjoner
 
 @app.route('/')
@@ -8,10 +15,14 @@ def index():
     # Din kode for ruten
     return render_template('index.html')
 
-@app.route('/add_sector', methods=['POST'])
+@app.route('/add_sector', methods=['GET', 'POST'])
 def add_sector_route():
-    # Behandle innkommende data og kall add_sector
-    return "Sektor lagt til"
+    if request.method == 'POST':
+        # Behandle innkommende data og kall add_sector
+        return "Sektor lagt til"
+    else:
+        # Viser skjemaet for å legge til en ny sektor
+        return render_template('add_sector.html')
 
 @app.route('/sector/<int:sector_id>', methods=['GET'])
 def get_sector_route(sector_id):
