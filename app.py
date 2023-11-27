@@ -109,6 +109,23 @@ class HealthTrust(db.Model):
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'), nullable=False)
     regional_health_trust_id = db.Column(db.Integer, db.ForeignKey('regional_health_trust.id'), nullable=False)
     district_psychiatric_centers = db.relationship('DistrictPsychiatricCenter', backref='health_trust', lazy=True)
+    healthtrusts_departments = db.relationship('HealthTrustsDepartment', backref='health_trust', lazy=True)
+
+
+class HealthTrustsDepartment(db.Model):
+    __tablename__ = 'healthtrusts_department'  # Tabellnavnet i databasen
+    id = db.Column(db.Integer, primary_key=True)  # Primærnøkkel
+    name = db.Column(db.String(100), nullable=False)
+    visitor_address = db.Column(db.String(100), nullable=False)
+    visitor_postal_code = db.Column(db.String(100), nullable=True)
+    postal_address = db.Column(db.String(100), nullable=False)
+    postal_postal_code = db.Column(db.String(100), nullable=True)
+    city = db.Column(db.String(100), nullable=True)
+    general_info = db.Column(db.Text)
+    practical_info = db.Column(db.Text)
+    phone_number = db.Column(db.Integer)
+    email = db.Column(db.String(100))
+    health_trust_id = db.Column(db.Integer, db.ForeignKey('health_trust.id'), nullable=False)
 
 class DistrictPsychiatricCenter(db.Model):
     __tablename__ = 'district_psychiatric_center'
@@ -130,7 +147,7 @@ class DPSDepartment(db.Model):
     __tablename__ = 'dps_department'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    about = db.Column(db.Text)
+    by = db.Column(db.String(100), nullable=False)
     visitor_address = db.Column(db.String(100), nullable=False)
     postal_address = db.Column(db.String(100), nullable=False)
     general_info = db.Column(db.Text)
@@ -500,10 +517,31 @@ def delete_dps_route(dps_id):
         return str(e), 500
 
 
-@app.route('/add_dps_department', methods=['POST'])
-def add_dps_department_route():
-    # Hent og prosesser data fra request her
-    return "DPS-avdeling lagt til"
+@app.route('/add_dps_department', methods=['GET', 'POST'])
+def add_dps_department():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        by = request.form.get('by')
+        visitor_address = request.form.get('visitor_address')
+        postal_address = request.form.get('postal_address')
+        general_info = request.form.get('general_info')
+        practical_info = request.form.get('practical_info')
+        email = request.form.get('email')
+        phone_number = request.form.get('phone_number')
+        dps_id = request.form.get('dps_id')
+
+        if not all([name, by, visitor_address, postal_address, dps_id]):
+            return "Alle nødvendige felt må fylles ut", 400
+
+        add_dps_department(name, by, visitor_address, postal_address, general_info, practical_info, email, phone_number, dps_id)
+        return redirect(url_for('index'))
+
+    dps_list = get_all_dps()  # Antatt metode for å hente alle DPS
+    return render_template('add_dps_department.html', dps_list=dps_list)
+
+def get_all_dps():
+    return DistrictPsychiatricCenter.query.all()
+
 
 @app.route('/dps_department/<int:department_id>', methods=['GET'])
 def get_dps_department_route(department_id):
@@ -720,8 +758,18 @@ def delete_dps(dps_id):
     db.session.commit()
 
 # Legge til en ny DPS-avdeling
-def add_dps_department(name, about, visitor_address, postal_address, dps_id):
-    new_department = DPSDepartment(name=name, about=about, visitor_address=visitor_address, postal_address=postal_address, dps_id=dps_id)
+def add_dps_department(name, by, visitor_address, postal_address, general_info, practical_info, email, phone_number, dps_id):
+    new_department = DPSDepartment(
+        name=name,
+        by=by,
+        visitor_address=visitor_address,
+        postal_address=postal_address,
+        general_info=general_info,
+        practical_info=practical_info,
+        email=email,
+        phone_number=phone_number,
+        dps_id=dps_id
+    )
     db.session.add(new_department)
     db.session.commit()
 
@@ -811,8 +859,27 @@ def delete_psychologist(psychologist_id):
     db.session.delete(psychologist)
     db.session.commit()
 
+def serialize_model(instance):
+    """Konverterer SQLAlchemy-objekt til en ordbok."""
+    return {c.name: getattr(instance, c.name) for c in instance.__table__.columns}
 
+def get_database_data():
+    """Henter data fra alle tabeller i databasen."""
+    data = {}
+    for mapper in db.Model.registry.mappers:
+        cls = mapper.class_
+        if hasattr(cls, '__tablename__'):
+            records = cls.query.all()
+            data[cls.__tablename__] = [serialize_model(record) for record in records]
+    return data
 
+@app.route('/export_database')
+def export_database():
+    data = get_database_data()
+    return jsonify(data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 if __name__ == "__main__":
     app.run(debug=True)

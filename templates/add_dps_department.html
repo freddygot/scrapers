@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Legg til DPS-avdeling</title>
+</head>
+<body>
+    <h1>Legg til DPS-avdeling</h1>
+    <form method="post" action="{{ url_for('add_dps_department') }}">
+        <label for="name">Navn på avdeling:</label>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="by">By:</label>
+        <input type="text" id="by" name="by" required><br>
+
+        <label for="visitor_address">Besøksadresse:</label>
+        <input type="text" id="visitor_address" name="visitor_address" required><br>
+
+        <label for="postal_address">Postadresse:</label>
+        <input type="text" id="postal_address" name="postal_address" required><br>
+
+        <label for="general_info">Generell informasjon:</label>
+        <textarea id="general_info" name="general_info"></textarea><br>
+
+        <label for="practical_info">Praktisk informasjon:</label>
+        <textarea id="practical_info" name="practical_info"></textarea><br>
+
+        <label for="email">E-post:</label>
+        <input type="email" id="email" name="email"><br>
+
+        <label for="phone_number">Telefonnummer:</label>
+        <input type="text" id="phone_number" name="phone_number"><br>
+
+        <label for="dps_id">Tilknyttet DPS:</label>
+        <select id="dps_id" name="dps_id" required>
+            {% for dps in dps_list %}
+            <option value="{{ dps.id }}">{{ dps.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Legg til DPS-avdeling">
+    </form>
+</body>
+</html>
