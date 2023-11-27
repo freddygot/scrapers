@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from app import app, db
-from models import Psychologist, Psychiatrist, ProblemArea, Method, PrivateClinic, Sector
+from app import Psychologist, Psychiatrist, ProblemArea, Method, PrivateClinic, Sector
 
 with app.app_context():
 
