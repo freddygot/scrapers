@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Opprett DPS</title>
+    </head>
+    <body>
+        <h1>Opprett DPS</h1>
+        <form method="post" action="/add_dps">
+            <label for="name">Navn:</label>
+            <input type="text" id="name" name="name"><br><br>
+    
+            <label for="general_info">Generell Informasjon:</label>
+            <textarea id="general_info" name="general_info"></textarea><br><br>
+    
+            <label for="practical_info">Praktisk Informasjon:</label>
+            <textarea id="practical_info" name="practical_info"></textarea><br><br>
+    
+            <label for="city">By:</label>
+            <input type="text" id="city" name="city"><br><br>
+
+            <label for="email">E-post:</label>
+            
+<input type="email" id="email" name="email"><br><br>
+
+<label for="phone_number">Telefonnummer:</label>
+<input type="text" id="phone_number" name="phone_number"><br><br>
+
+        <label for="visitor_address">Besøksadresse:</label>
+        <input type="text" id="visitor_address" name="visitor_address"><br><br>
+
+        <label for="visitor_postal_code">Postnummer (Besøksadresse):</label>
+        <input type="text" id="visitor_postal_code" name="visitor_postal_code"><br><br>
+
+        <label for="postal_address">Postadresse:</label>
+        <input type="text" id="postal_address" name="postal_address"><br><br>
+
+        <label for="postal_postal_code">Postnummer (Postadresse):</label>
+        <input type="text" id="postal_postal_code" name="postal_postal_code"><br><br>
+
+        <label for="health_trust_id">Velg Helseforetak:</label>
+        <select id="health_trust_id" name="health_trust_id">
+            {% for ht in health_trusts %}
+            <option value="{{ ht.id }}">{{ ht.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <input type="submit" value="Opprett DPS">
+    </form>
+</body>
+</html>

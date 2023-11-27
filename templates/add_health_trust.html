@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Opprett Helseforetak</title>
+</head>
+<body>
+    <h1>Opprett Helseforetak</h1>
+    <form method="post" action="/add_health_trust">
+        <label for="name">Navn på Helseforetak:</label>
+        <input type="text" id="name" name="name"><br><br>
+
+        <label for="sector_id">Velg Sektor:</label>
+        <select id="sector_id" name="sector_id">
+            {% for sector in sectors %}
+            <option value="{{ sector.id }}">{{ sector.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="regional_health_trust_id">Velg Regionalt Helseforetak:</label>
+        <select id="regional_health_trust_id" name="regional_health_trust_id">
+            {% for rht in regional_health_trusts %}
+            <option value="{{ rht.id }}">{{ rht.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <input type="submit" value="Opprett Helseforetak">
+    </form>
+</body>
+</html>
