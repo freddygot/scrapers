@@ -1,5 +1,5 @@
 from app import app, db
-from models import Psychologist, Psychiatrist, PrivateClinic
+from app import Psychologist, Psychiatrist, PrivateClinic
 
 def transfer_psychiatrists():
     # Hent alle psykologer som faktisk er psykiatere basert på self_report

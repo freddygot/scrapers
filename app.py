@@ -74,13 +74,13 @@ general_practitioner_services = db.Table('general_practitioner_services',
 	db.Column('service_id', db.Integer, db.ForeignKey('service.id'), primary_key=True)
 )
 
-dps_subdepartment_method = db.Table('dps_subdepartment_method',
-    db.Column('dps_subdepartment_id', db.Integer, db.ForeignKey('dps_subdepartment.id'), primary_key=True),
+dps_level_2_method = db.Table('dps_level_2_method',
+    db.Column('dps_level_2_id', db.Integer, db.ForeignKey('dps_level_2.id'), primary_key=True),
     db.Column('method_id', db.Integer, db.ForeignKey('method.id'), primary_key=True)
 )
 
-dps_subdepartment_problem_area = db.Table('dps_subdepartment_problem_area',
-    db.Column('dps_subdepartment_id', db.Integer, db.ForeignKey('dps_subdepartment.id'), primary_key=True),
+dps_level_2_problem_area = db.Table('dps_level_2_problem_area',
+    db.Column('dps_level_2_id', db.Integer, db.ForeignKey('dps_level_2.id'), primary_key=True),
     db.Column('problem_area_id', db.Integer, db.ForeignKey('problem_area.id'), primary_key=True)
 )
 # Models
@@ -141,10 +141,10 @@ class DistrictPsychiatricCenter(db.Model):
     phone_number = db.Column(db.Integer)
     email = db.Column(db.String(100))
     health_trust_id = db.Column(db.Integer, db.ForeignKey('health_trust.id'), nullable=False)
-    departments = db.relationship('DPSDepartment', backref='dps', lazy=True)
+    departments = db.relationship('DPSLevel1', backref='dps', lazy=True)
 
-class DPSDepartment(db.Model):
-    __tablename__ = 'dps_department'
+class DPSLevel1(db.Model):
+    __tablename__ = 'dps_level_1'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     by = db.Column(db.String(100), nullable=False)
@@ -155,10 +155,10 @@ class DPSDepartment(db.Model):
     email = db.Column(db.String(100))
     phone_number = db.Column(db.Integer)
     dps_id = db.Column(db.Integer, db.ForeignKey('district_psychiatric_center.id'), nullable=False)
-    subdepartments = db.relationship('DPSSubdepartment', backref='department', lazy=True)
+    subdepartments = db.relationship('DPSLevel2', backref='department', lazy=True)
 
-class DPSSubdepartment(db.Model):
-    __tablename__ = 'dps_subdepartment'
+class DPSLevel2(db.Model):
+    __tablename__ = 'dps_level_2'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     about = db.Column(db.Text)
@@ -166,9 +166,22 @@ class DPSSubdepartment(db.Model):
     postal_address = db.Column(db.String(100), nullable=False)
     general_info = db.Column(db.Text)
     practical_info = db.Column(db.Text)
-    department_id = db.Column(db.Integer, db.ForeignKey('dps_department.id'), nullable=False)
-    methods = db.relationship('Method', secondary=dps_subdepartment_method, back_populates='dps_subdepartment')
-    problem_areas = db.relationship('ProblemArea', secondary=dps_subdepartment_problem_area, back_populates='dps_subdepartments')
+    department_id = db.Column(db.Integer, db.ForeignKey('dps_level_1.id'), nullable=False)
+    methods = db.relationship('Method', secondary=dps_level_2_method, back_populates='dps_level_2')
+    problem_areas = db.relationship('ProblemArea', secondary=dps_level_2_problem_area, back_populates='dps_level_2s')
+
+class DPSLevel3(db.Model):
+    __tablename__ = 'dps_level_2'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    about = db.Column(db.Text)
+    visitor_address = db.Column(db.String(100), nullable=False)
+    postal_address = db.Column(db.String(100), nullable=False)
+    general_info = db.Column(db.Text)
+    practical_info = db.Column(db.Text)
+    department_id = db.Column(db.Integer, db.ForeignKey('dps_level_1.id'), nullable=False)
+    methods = db.relationship('Method', secondary=dps_level_2_method, back_populates='dps_level_2')
+    problem_areas = db.relationship('ProblemArea', secondary=dps_level_2_problem_area, back_populates='dps_level_2s')
 
 
 
@@ -253,7 +266,7 @@ class Method(db.Model):
     description = db.Column(db.Text, nullable=False)
     psychologists = db.relationship('Psychologist', secondary=psychologist_method, back_populates='methods')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_method, back_populates='methods')
-    dps_subdepartment = db.relationship('DPSSubdepartment', secondary=dps_subdepartment_method, back_populates='methods')
+    dps_level_2 = db.relationship('DPSLevel2', secondary=dps_level_2_method, back_populates='methods')
     general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_method, back_populates='methods')
 
 
@@ -272,7 +285,7 @@ class ProblemArea(db.Model):
     description = db.Column(db.Text, nullable=False)
     psychologists = db.relationship('Psychologist', secondary=psychologist_problem_area, back_populates='problem_areas')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_problem_area, back_populates='problem_areas')
-    dps_subdepartments = db.relationship('DPSSubdepartment', secondary=dps_subdepartment_problem_area, back_populates='problem_areas')
+    dps_level_2 = db.relationship('DPSLevel2', secondary=dps_level_2_problem_area, back_populates='problem_areas')
     general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_problem_area, back_populates='problem_areas')
 
 class Service(db.Model):
@@ -517,8 +530,8 @@ def delete_dps_route(dps_id):
         return str(e), 500
 
 
-@app.route('/add_dps_department', methods=['GET', 'POST'])
-def add_dps_department():
+@app.route('/dps_level_1', methods=['GET', 'POST'])
+def add_dps_level_1():
     if request.method == 'POST':
         name = request.form.get('name')
         by = request.form.get('by')
@@ -533,19 +546,19 @@ def add_dps_department():
         if not all([name, by, visitor_address, postal_address, dps_id]):
             return "Alle nødvendige felt må fylles ut", 400
 
-        add_dps_department(name, by, visitor_address, postal_address, general_info, practical_info, email, phone_number, dps_id)
+        add_dps_level_1(name, by, visitor_address, postal_address, general_info, practical_info, email, phone_number, dps_id)
         return redirect(url_for('index'))
 
     dps_list = get_all_dps()  # Antatt metode for å hente alle DPS
-    return render_template('add_dps_department.html', dps_list=dps_list)
+    return render_template('add_dps_level_1.html', dps_list=dps_list)
 
 def get_all_dps():
     return DistrictPsychiatricCenter.query.all()
 
 
-@app.route('/dps_department/<int:department_id>', methods=['GET'])
-def get_dps_department_route(department_id):
-    department = get_dps_department_by_id(department_id)
+@app.route('/dps_level_1/<int:department_id>', methods=['GET'])
+def get_dps_level_1_route(department_id):
+    department = get_dps_level_1_by_id(department_id)
     if department:
         return jsonify({
             'id': department.id,
@@ -558,8 +571,8 @@ def get_dps_department_route(department_id):
     else:
         return "DPS-avdeling ikke funnet", 404
 
-@app.route('/dps_department/<int:department_id>', methods=['PUT'])
-def update_dps_department_route(department_id):
+@app.route('/dps_level_1/<int:department_id>', methods=['PUT'])
+def update_dps_level_1_route(department_id):
     data = request.json
     name = data.get('name')
     about = data.get('about')
@@ -571,27 +584,27 @@ def update_dps_department_route(department_id):
         return "Mangler nødvendig felt", 400
 
     try:
-        update_dps_department(department_id, name, about, visitor_address, postal_address, dps_id)
+        update_dps_level_1(department_id, name, about, visitor_address, postal_address, dps_id)
         return f"DPS-avdeling med ID {department_id} har blitt oppdatert."
     except Exception as e:
         return str(e), 500
 
-@app.route('/dps_department/<int:department_id>', methods=['DELETE'])
-def delete_dps_department_route(department_id):
+@app.route('/dps_level_1/<int:department_id>', methods=['DELETE'])
+def delete_dps_level_1_route(department_id):
     try:
-        delete_dps_department(department_id)
+        delete_dps_level_1(department_id)
         return f"DPS-avdeling med ID {department_id} har blitt slettet."
     except Exception as e:
         return str(e), 500
 
-@app.route('/add_dps_subdepartment', methods=['POST'])
-def add_dps_subdepartment_route():
+@app.route('/add_dps_level_2', methods=['POST'])
+def add_dps_level_2_route():
     # Hent og prosesser data fra request her
     return "DPS-underavdeling lagt til"
 
-@app.route('/dps_subdepartment/<int:subdepartment_id>', methods=['GET'])
-def get_dps_subdepartment_route(subdepartment_id):
-    subdepartment = get_dps_subdepartment_by_id(subdepartment_id)
+@app.route('/dps_level_2/<int:subdepartment_id>', methods=['GET'])
+def get_dps_level_2_route(subdepartment_id):
+    subdepartment = get_dps_level_2_by_id(subdepartment_id)
     if subdepartment:
         return jsonify({
             'id': subdepartment.id,
@@ -604,8 +617,8 @@ def get_dps_subdepartment_route(subdepartment_id):
     else:
         return "DPS-underavdeling ikke funnet", 404
 
-@app.route('/dps_subdepartment/<int:subdepartment_id>', methods=['PUT'])
-def update_dps_subdepartment_route(subdepartment_id):
+@app.route('/dps_level_2/<int:subdepartment_id>', methods=['PUT'])
+def update_dps_level_2_route(subdepartment_id):
     data = request.json
     name = data.get('name')
     about = data.get('about')
@@ -617,15 +630,15 @@ def update_dps_subdepartment_route(subdepartment_id):
         return "Mangler nødvendig felt", 400
 
     try:
-        update_dps_subdepartment(subdepartment_id, name, about, visitor_address, postal_address, department_id)
+        update_dps_level_2(subdepartment_id, name, about, visitor_address, postal_address, department_id)
         return f"DPS-underavdeling med ID {subdepartment_id} har blitt oppdatert."
     except Exception as e:
         return str(e), 500
 
-@app.route('/dps_subdepartment/<int:subdepartment_id>', methods=['DELETE'])
-def delete_dps_subdepartment_route(subdepartment_id):
+@app.route('/dps_level_2/<int:subdepartment_id>', methods=['DELETE'])
+def delete_dps_level_2_route(subdepartment_id):
     try:
-        delete_dps_subdepartment(subdepartment_id)
+        delete_dps_level_2(subdepartment_id)
         return f"DPS-underavdeling med ID {subdepartment_id} har blitt slettet."
     except Exception as e:
         return str(e), 500
@@ -758,8 +771,8 @@ def delete_dps(dps_id):
     db.session.commit()
 
 # Legge til en ny DPS-avdeling
-def add_dps_department(name, by, visitor_address, postal_address, general_info, practical_info, email, phone_number, dps_id):
-    new_department = DPSDepartment(
+def add_dps_level_1(name, by, visitor_address, postal_address, general_info, practical_info, email, phone_number, dps_id):
+    new_department = DPSLevel1(
         name=name,
         by=by,
         visitor_address=visitor_address,
@@ -774,42 +787,42 @@ def add_dps_department(name, by, visitor_address, postal_address, general_info, 
     db.session.commit()
 
 # Hente en DPS-avdeling ved ID
-def get_dps_department_by_id(department_id):
-    return DPSDepartment.query.get(department_id)
+def get_dps_level_1_by_id(department_id):
+    return DPSLevel1.query.get(department_id)
 
 # Oppdatere en DPS-avdeling
-def update_dps_department(department_id, **kwargs):
-    department = DPSDepartment.query.get(department_id)
+def update_dps_level_1(department_id, **kwargs):
+    department = DPSLevel1.query.get(department_id)
     for key, value in kwargs.items():
         setattr(department, key, value)
     db.session.commit()
 
 # Slette en DPS-avdeling
-def delete_dps_department(department_id):
-    department = DPSDepartment.query.get(department_id)
+def delete_dps_level_1(department_id):
+    department = DPSLevel1.query.get(department_id)
     db.session.delete(department)
     db.session.commit()
 
 # Legge til en ny DPS-underavdeling
-def add_dps_subdepartment(name, about, visitor_address, postal_address, department_id):
-    new_subdepartment = DPSSubdepartment(name=name, about=about, visitor_address=visitor_address, postal_address=postal_address, department_id=department_id)
+def add_dps_level_2(name, about, visitor_address, postal_address, department_id):
+    new_subdepartment = DPSLevel2(name=name, about=about, visitor_address=visitor_address, postal_address=postal_address, department_id=department_id)
     db.session.add(new_subdepartment)
     db.session.commit()
 
 # Hente en DPS-underavdeling ved ID
-def get_dps_subdepartment_by_id(subdepartment_id):
-    return DPSSubdepartment.query.get(subdepartment_id)
+def get_dps_level_2_by_id(subdepartment_id):
+    return DPSLevel2.query.get(subdepartment_id)
 
 # Oppdatere en DPS-underavdeling
-def update_dps_subdepartment(subdepartment_id, **kwargs):
-    subdepartment = DPSSubdepartment.query.get(subdepartment_id)
+def update_dps_level_2(subdepartment_id, **kwargs):
+    subdepartment = DPSLevel2.query.get(subdepartment_id)
     for key, value in kwargs.items():
         setattr(subdepartment, key, value)
     db.session.commit()
 
 # Slette en DPS-underavdeling
-def delete_dps_subdepartment(subdepartment_id):
-    subdepartment = DPSSubdepartment.query.get(subdepartment_id)
+def delete_dps_level_2(subdepartment_id):
+    subdepartment = DPSLevel2.query.get(subdepartment_id)
     db.session.delete(subdepartment)
     db.session.commit()
 
