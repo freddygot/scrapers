@@ -79,8 +79,19 @@ dps_level_2_method = db.Table('dps_level_2_method',
     db.Column('method_id', db.Integer, db.ForeignKey('method.id'), primary_key=True)
 )
 
+dps_level_3_method = db.Table('dps_level_3_method',
+    db.Column('dps_level_2_id', db.Integer, db.ForeignKey('dps_level_2.id'), primary_key=True),
+    db.Column('method_id', db.Integer, db.ForeignKey('method.id'), primary_key=True)
+)
+
+
 dps_level_2_problem_area = db.Table('dps_level_2_problem_area',
     db.Column('dps_level_2_id', db.Integer, db.ForeignKey('dps_level_2.id'), primary_key=True),
+    db.Column('problem_area_id', db.Integer, db.ForeignKey('problem_area.id'), primary_key=True)
+)
+
+dps_level_3_problem_area = db.Table('dps_level_3_problem_area',
+    db.Column('dps_level_3_id', db.Integer, db.ForeignKey('dps_level_3.id'), primary_key=True),
     db.Column('problem_area_id', db.Integer, db.ForeignKey('problem_area.id'), primary_key=True)
 )
 # Models
@@ -171,7 +182,7 @@ class DPSLevel2(db.Model):
     problem_areas = db.relationship('ProblemArea', secondary=dps_level_2_problem_area, back_populates='dps_level_2s')
 
 class DPSLevel3(db.Model):
-    __tablename__ = 'dps_level_2'
+    __tablename__ = 'dps_level_3'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     about = db.Column(db.Text)
@@ -179,9 +190,9 @@ class DPSLevel3(db.Model):
     postal_address = db.Column(db.String(100), nullable=False)
     general_info = db.Column(db.Text)
     practical_info = db.Column(db.Text)
-    department_id = db.Column(db.Integer, db.ForeignKey('dps_level_1.id'), nullable=False)
-    methods = db.relationship('Method', secondary=dps_level_2_method, back_populates='dps_level_2')
-    problem_areas = db.relationship('ProblemArea', secondary=dps_level_2_problem_area, back_populates='dps_level_2s')
+    department_id = db.Column(db.Integer, db.ForeignKey('dps_level_3.id'), nullable=False)
+    methods = db.relationship('Method', secondary=dps_level_3_method, back_populates='dps_level_3')
+    problem_areas = db.relationship('ProblemArea', secondary=dps_level_3_problem_area, back_populates='dps_level_3s')
 
 
 
@@ -267,6 +278,7 @@ class Method(db.Model):
     psychologists = db.relationship('Psychologist', secondary=psychologist_method, back_populates='methods')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_method, back_populates='methods')
     dps_level_2 = db.relationship('DPSLevel2', secondary=dps_level_2_method, back_populates='methods')
+    dps_level_3 = db.relationship('DPSLevel3', secondary=dps_level_3_method, back_populates='methods')
     general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_method, back_populates='methods')
 
 
@@ -286,6 +298,7 @@ class ProblemArea(db.Model):
     psychologists = db.relationship('Psychologist', secondary=psychologist_problem_area, back_populates='problem_areas')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_problem_area, back_populates='problem_areas')
     dps_level_2 = db.relationship('DPSLevel2', secondary=dps_level_2_problem_area, back_populates='problem_areas')
+    dps_level_3 = db.relationship('DPSLevel3', secondary=dps_level_3_problem_area, back_populates='problem_areas')
     general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_problem_area, back_populates='problem_areas')
 
 class Service(db.Model):
