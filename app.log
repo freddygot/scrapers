@@ -1,0 +1,6 @@
+DPS Nivå 2 underavdeling lagt til: asdasd
+Feil under behandling av /add_dps_level_2: (sqlite3.OperationalError) database is locked
+[SQL: INSERT INTO dps_level_2 (name, about, visitor_address, postal_address, general_info, practical_info, phone_number, email, treatment_description, department_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('asdasdasdasdad', 'asdasdasd', 'asdasda', 'sdasdasd', 'asdasd', 'asdasd', '24074400', 'asdas@glasd.com', 'asdasda', '1')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+DPS Nivå 2 underavdeling lagt til: asdasdasdasdad
