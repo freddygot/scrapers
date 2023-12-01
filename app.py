@@ -287,7 +287,7 @@ class VoluntaryOrganization(db.Model):
 class Method(db.Model):
     __tablename__ = 'method'
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     psychologists = db.relationship('Psychologist', secondary=psychologist_method, back_populates='methods')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_method, back_populates='methods')
     dps_level_2s = db.relationship('DPSLevel2', secondary=dps_level_2_method, back_populates='methods')
@@ -297,7 +297,7 @@ class Method(db.Model):
 class WorkForm(db.Model):
     __tablename__ = 'work_form'
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     psychologists = db.relationship('Psychologist', secondary=psychologist_work_form, back_populates='work_forms')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_work_form, back_populates='work_forms')
     general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_work_form, back_populates='work_forms')
@@ -305,7 +305,7 @@ class WorkForm(db.Model):
 class ProblemArea(db.Model):
     __tablename__ = 'problem_area'
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     psychologists = db.relationship('Psychologist', secondary=psychologist_problem_area, back_populates='problem_areas')
     psychiatrists = db.relationship('Psychiatrist', secondary=psychiatrist_problem_area, back_populates='problem_areas')
     dps_level_2s = db.relationship('DPSLevel2', secondary=dps_level_2_problem_area, back_populates='problem_areas')
@@ -825,8 +825,8 @@ def delete_dps(dps_id):
     dps = DistrictPsychiatricCenter.query.get(dps_id)
     db.session.delete(dps)
     db.session.commit()
-
-# Legge til en ny DPS-avdeling
+    
+# Legge til en ny DPS-underavdeling
 def add_dps_level_2(name, about, visitor_address, postal_address, general_info, practical_info, treatment_description, email, phone_number, department_id, method_ids, problem_area_ids, new_methods, new_problem_areas):
     try:
         # Opprette ny DPS Nivå 2 underavdeling
@@ -843,40 +843,42 @@ def add_dps_level_2(name, about, visitor_address, postal_address, general_info, 
             department_id=department_id
         )
         db.session.add(new_subdepartment)
-        db.session.flush()  # For å få generert ID for new_subdepartment
+        db.session.flush()
 
         # Behandle eksisterende metoder
-        existing_methods = Method.query.filter(Method.id.in_(method_ids)).all()
-        for method in existing_methods:
-            if method not in new_subdepartment.methods:
-                new_subdepartment.methods.append(method)
-
-        # Behandle nye metoder
-        if new_methods:
-            for method_desc in new_methods.split(','):
-                method_desc = method_desc.strip()
-                method = Method.query.filter_by(description=method_desc).first()
-                if not method:
-                    method = Method(description=method_desc)
-                    db.session.add(method)
+        if method_ids:
+            existing_methods = Method.query.filter(Method.id.in_(method_ids)).all()
+            for method in existing_methods:
                 if method not in new_subdepartment.methods:
                     new_subdepartment.methods.append(method)
 
-        # Behandle eksisterende problemområder
-        existing_problem_areas = ProblemArea.query.filter(ProblemArea.id.in_(problem_area_ids)).all()
-        for problem_area in existing_problem_areas:
-            if problem_area not in new_subdepartment.problem_areas:
-                new_subdepartment.problem_areas.append(problem_area)
+        # Behandle nye metoder, sjekker om strengen ikke er tom
+        if new_methods.strip():
+            for method_desc in new_methods.split(','):
+                method_desc = method_desc.strip()
+                if method_desc:
+                    method = Method.query.filter_by(description=method_desc).first()
+                    if not method:
+                        method = Method(description=method_desc)
+                        db.session.add(method)
+                    new_subdepartment.methods.append(method)
 
-        # Behandle nye problemområder
-        if new_problem_areas:
+        # Behandle eksisterende problemområder
+        if problem_area_ids:
+            existing_problem_areas = ProblemArea.query.filter(ProblemArea.id.in_(problem_area_ids)).all()
+            for problem_area in existing_problem_areas:
+                if problem_area not in new_subdepartment.problem_areas:
+                    new_subdepartment.problem_areas.append(problem_area)
+
+        # Behandle nye problemområder, sjekker om strengen ikke er tom
+        if new_problem_areas.strip():
             for problem_area_desc in new_problem_areas.split(','):
                 problem_area_desc = problem_area_desc.strip()
-                problem_area = ProblemArea.query.filter_by(description=problem_area_desc).first()
-                if not problem_area:
-                    problem_area = ProblemArea(description=problem_area_desc)
-                    db.session.add(problem_area)
-                if problem_area not in new_subdepartment.problem_areas:
+                if problem_area_desc:
+                    problem_area = ProblemArea.query.filter_by(description=problem_area_desc).first()
+                    if not problem_area:
+                        problem_area = ProblemArea(description=problem_area_desc)
+                        db.session.add(problem_area)
                     new_subdepartment.problem_areas.append(problem_area)
 
         # Lagre endringene
@@ -886,7 +888,9 @@ def add_dps_level_2(name, about, visitor_address, postal_address, general_info, 
     except Exception as e:
         logger.error(f"Feil ved tillegging av DPS Nivå 2 underavdeling: {e}")
         db.session.rollback()
-        raise e  # Re-raise the exception to handle it in the calling context
+        raise e
+
+
 
 
 
@@ -911,67 +915,64 @@ def delete_dps_level_1(department_id):
 
 # Legge til en ny DPS-underavdeling
 def add_dps_level_2(name, about, visitor_address, postal_address, general_info, practical_info, treatment_description, email, phone_number, department_id, method_ids, problem_area_ids, new_methods, new_problem_areas):
-    # Opprette ny DPS Nivå 2 underavdeling
-    new_subdepartment = DPSLevel2(
-        name=name, 
-        about=about, 
-        visitor_address=visitor_address, 
-        postal_address=postal_address, 
-        general_info=general_info,
-        practical_info=practical_info,
-        treatment_description=treatment_description,
-        email=email, 
-        phone_number=phone_number,
-        department_id=department_id
-    )
-    db.session.add(new_subdepartment)
-    db.session.flush()  # For å få generert ID for new_subdepartment
+    try:
+        # Opprette ny DPS Nivå 2 underavdeling
+        new_subdepartment = DPSLevel2(
+            name=name, 
+            about=about, 
+            visitor_address=visitor_address, 
+            postal_address=postal_address, 
+            general_info=general_info,
+            practical_info=practical_info,
+            treatment_description=treatment_description,
+            email=email, 
+            phone_number=phone_number,
+            department_id=department_id
+        )
+        db.session.add(new_subdepartment)
+        db.session.flush()
 
-    # Behandle eksisterende metoder
-    for method_id in method_ids:
-        # Sjekk om relasjonen allerede eksisterer
-        existing_relation = db.session.query(dps_level_2_method).filter_by(
-            dps_level_2_id=new_subdepartment.id, method_id=method_id).first()
-        if not existing_relation:
-            method = Method.query.get(method_id)
-            if method:
+        # Behandle eksisterende metoder
+        existing_methods = Method.query.filter(Method.id.in_(method_ids)).all()
+        for method in existing_methods:
+            if method not in new_subdepartment.methods:
                 new_subdepartment.methods.append(method)
 
         # Behandle nye metoder
-    if new_methods.strip():  # Sjekker om strengen ikke er tom
         for method_desc in new_methods.split(','):
             method_desc = method_desc.strip()
-            if method_desc:  # Sjekker om hvert element i listen ikke er tom
+            if method_desc:
                 method = Method.query.filter_by(description=method_desc).first()
                 if not method:
                     method = Method(description=method_desc)
                     db.session.add(method)
-                if method not in new_subdepartment.methods:
-                    new_subdepartment.methods.append(method)
+                new_subdepartment.methods.append(method)
 
-    # Behandle eksisterende problemområder
-    for problem_area_id in problem_area_ids:
-        # Sjekk om relasjonen allerede eksisterer
-        existing_relation = db.session.query(dps_level_2_problem_area).filter_by(
-            dps_level_2_id=new_subdepartment.id, problem_area_id=problem_area_id).first()
-        if not existing_relation:
-            problem_area = ProblemArea.query.get(problem_area_id)
-            if problem_area:
+        # Behandle eksisterende problemområder
+        existing_problem_areas = ProblemArea.query.filter(ProblemArea.id.in_(problem_area_ids)).all()
+        for problem_area in existing_problem_areas:
+            if problem_area not in new_subdepartment.problem_areas:
                 new_subdepartment.problem_areas.append(problem_area)
 
         # Behandle nye problemområder
-    if new_problem_areas.strip():  # Sjekker om strengen ikke er tom
         for problem_area_desc in new_problem_areas.split(','):
             problem_area_desc = problem_area_desc.strip()
-            if problem_area_desc:  # Sjekker om hvert element i listen ikke er tom
+            if problem_area_desc:
                 problem_area = ProblemArea.query.filter_by(description=problem_area_desc).first()
                 if not problem_area:
                     problem_area = ProblemArea(description=problem_area_desc)
                     db.session.add(problem_area)
-                if problem_area not in new_subdepartment.problem_areas:
-                    new_subdepartment.problem_areas.append(problem_area)
+                new_subdepartment.problem_areas.append(problem_area)
+
         # Lagre endringene
         db.session.commit()
+        logger.info(f"DPS Nivå 2 underavdeling lagt til: {name}")
+
+    except Exception as e:
+        logger.error(f"Feil ved tillegging av DPS Nivå 2 underavdeling: {e}")
+        db.session.rollback()
+        raise e
+
 
 
 

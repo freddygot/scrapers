@@ -4,3 +4,42 @@ Feil under behandling av /add_dps_level_2: (sqlite3.OperationalError) database i
 [parameters: ('asdasdasdasdad', 'asdasdasd', 'asdasda', 'sdasdasd', 'asdasd', 'asdasd', '24074400', 'asdas@glasd.com', 'asdasda', '1')]
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
 DPS Nivå 2 underavdeling lagt til: asdasdasdasdad
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Nordre Aker (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Sagene
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Sagene
+DPS Nivå 2 underavdeling lagt til: asdasasd
+DPS Nivå 2 underavdeling lagt til: asdasasd
+Feil under behandling av /add_dps_level_2: (sqlite3.OperationalError) database is locked
+[SQL: INSERT INTO dps_level_2 (name, about, visitor_address, postal_address, general_info, practical_info, phone_number, email, treatment_description, department_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Psykiatrisk poliklinikk Sagene (DPS Nydalen)', 'Poliklinikk Sagene tar imot pasienter over 18 år med moderate til alvorlige psykiske lidelser. Pasientene må ha bostedsadresse Sagene bydel. Poliklin ... (141 characters truncated) ... te.\r\nPoliklinikk Sagene har møter med fastleger i bydelen vedrørende henviste pasienter, og samarbeider også med 1. linjetjensten og NAV i bydelen.', 'Gullhaugveien 12  0484 Oslo', 'Oslo universitetssykehus HF Nydalen DPS Seksjon Allmennpsykiatrisk poliklinikk Enhet Sagene Postboks 4956 Nydalen 0424 Oslo', '', 'Parkering\r\n\u200bParkering ved Nydalen DPS\r\nDet er begrensede parkeringsmuligheter i Gullhaugveien 10–12 ved Nydalen DPS. \r\n\r\nNærmeste parker ... (1012 characters truncated) ... ng.\r\n\r\nStørre ting må oppbevares på post eller overleveres pårørende.\r\n\r\nTa kontakt med posten du skal innlegges for mer informasjon.\r\n\r\n', '24074400', 'fredrik@lianfjell.no', 'BEHANDLING\r\n\r\nDepresjon - veiledet internettbehandling\r\nDepresjon er en av de vanligste psykiske lidelsene. Den er kjennetegnet ved sterk og ve ... (25385 characters truncated) ... rogrammet avsluttes, men du vil ha tilgang til alt innholdet i behandlingen i 6 måneder. Innholdet kan lastes ned og skrives ut om du ønsker det.\r\n', '6')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk poliklinikk Sagene (DPS Nydalen)
+Feil under behandling av /add_dps_level_2: (sqlite3.OperationalError) database is locked
+[SQL: INSERT INTO dps_level_2 (name, about, visitor_address, postal_address, general_info, practical_info, phone_number, email, treatment_description, department_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Psykiatrisk polikslinikk Sagene (DPS Nydalen)', 'Poliklinikk Sagene tar imot pasienter over 18 år med moderate til alvorlige psykiske lidelser. Pasientene må ha bostedsadresse Sagene bydel. Poliklin ... (141 characters truncated) ... te.\r\nPoliklinikk Sagene har møter med fastleger i bydelen vedrørende henviste pasienter, og samarbeider også med 1. linjetjensten og NAV i bydelen.', 'Gullhaugveien 12  0484 Oslo', 'Oslo universitetssykehus HF Nydalen DPS Seksjon Allmennpsykiatrisk poliklinikk Enhet Sagene Postboks 4956 Nydalen 0424 Oslo', '', 'Parkering\r\n\u200bParkering ved Nydalen DPS\r\nDet er begrensede parkeringsmuligheter i Gullhaugveien 10–12 ved Nydalen DPS. \r\n\r\nNærmeste parker ... (1012 characters truncated) ... ng.\r\n\r\nStørre ting må oppbevares på post eller overleveres pårørende.\r\n\r\nTa kontakt med posten du skal innlegges for mer informasjon.\r\n\r\n', '24074400', 'fredrik@lianfjell.no', '\r\nDepresjon - veiledet internettbehandling\r\nDepresjon er en av de vanligste psykiske lidelsene. Den er kjennetegnet ved sterk og vedvarende nedst ... (25371 characters truncated) ... rogrammet avsluttes, men du vil ha tilgang til alt innholdet i behandlingen i 6 måneder. Innholdet kan lastes ned og skrives ut om du ønsker det.\r\n', '6')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk polikslinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk polikslinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk polikslinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: Psykiatrisk polikslinikk Sagene (DPS Nydalen)
+DPS Nivå 2 underavdeling lagt til: asdasd
+DPS Nivå 2 underavdeling lagt til: asdasd
+DPS Nivå 2 underavdeling lagt til: adasd
+DPS Nivå 2 underavdeling lagt til: adasd
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
+DPS Nivå 2 underavdeling lagt til: test
