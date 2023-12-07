@@ -3,6 +3,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from datetime import datetime
 
 app = Flask(__name__)
 # Logger setup
@@ -217,6 +218,7 @@ class PrivateClinic(db.Model):
     postal_code = db.Column(db.String(100), nullable=True)
     city = db.Column(db.String(100), nullable=False)
     website = db.Column(db.String(100))
+    about = db.Column(db.Text)
     sector_id = db.Column(db.Integer, db.ForeignKey('sector.id'), nullable=False)
     psychologists = db.relationship('Psychologist', backref='clinic', lazy=True)
     psychiatrists = db.relationship('Psychiatrist', backref='clinic', lazy=True)
@@ -237,6 +239,7 @@ class Psychologist(db.Model):
     methods = db.relationship('Method', secondary=psychologist_method, back_populates='psychologists')
     work_forms = db.relationship('WorkForm', secondary=psychologist_work_form, back_populates='psychologists')
     problem_areas = db.relationship('ProblemArea', secondary=psychologist_problem_area, back_populates='psychologists')
+    reviews = db.relationship('Review', backref='psychologist', lazy=True)
 
 
 class Psychiatrist(db.Model):
@@ -323,14 +326,15 @@ class Service(db.Model):
 	general_practitioners = db.relationship('GeneralPractitioner', secondary=general_practitioner_services, backref=db.backref('services', lazy='dynamic'))
 
 class Review(db.Model):
-	__tablename__ = 'review'
-	id = db.Column(db.Integer, primary_key=True)
-	rating = db.Column(db.Float, nullable=False)  # Rating, for example a scale from 1 to 5
-	comment = db.Column(db.Text, nullable=True)  # Review text
-	# Foreign keys to healthcare professionals
-	psychologist_id = db.Column(db.Integer, db.ForeignKey('psychologist.id'), nullable=True)
-	psychiatrist_id = db.Column(db.Integer, db.ForeignKey('psychiatrist.id'), nullable=True)
-	general_practitioner_id = db.Column(db.Integer, db.ForeignKey('general_practitioner.id'), nullable=True)
+    __tablename__ = 'review'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)  # Tittel på anmeldelsen
+    review_date = db.Column(db.DateTime, default=datetime.utcnow)  # Dato anmeldelsen ble skrevet
+    rating = db.Column(db.Float, nullable=False)  # Rating, for eksempel en skala fra 1 til 5
+    comment = db.Column(db.Text, nullable=True)  # Anmeldelsestekst
+    # Fremmednøkkel til psykolog
+    psychologist_id = db.Column(db.Integer, db.ForeignKey('psychologist.id'), nullable=True)
+
 
 #RUTER
 @app.route('/add_sector', methods=['GET', 'POST'])
