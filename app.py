@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for
 import logging
 from logging.handlers import RotatingFileHandler
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from flask_migrate import Migrate
 from datetime import datetime
 
@@ -178,6 +179,7 @@ class DPSLevel1(db.Model):
     treatment_description = db.Column(db.Text)
     dps_id = db.Column(db.Integer, db.ForeignKey('district_psychiatric_center.id'), nullable=False)
     subdepartments = db.relationship('DPSLevel2', backref='department', lazy=True)
+    wainting_time = db.Column(db.String(100))
 
 class DPSLevel2(db.Model):
     __tablename__ = 'dps_level_2'
@@ -194,6 +196,7 @@ class DPSLevel2(db.Model):
     department_id = db.Column(db.Integer, db.ForeignKey('dps_level_1.id'), nullable=False)
     methods = db.relationship('Method', secondary=dps_level_2_method, back_populates='dps_level_2s')
     problem_areas = db.relationship('ProblemArea', secondary=dps_level_2_problem_area, back_populates='dps_level_2s')
+    waiting_time = db.Column(db.String(100))
 
 class DPSLevel3(db.Model):
     __tablename__ = 'dps_level_3'
@@ -206,6 +209,7 @@ class DPSLevel3(db.Model):
     practical_info = db.Column(db.Text)
     treatment_description = db.Column(db.Text)
     department_id = db.Column(db.Integer, db.ForeignKey('dps_level_3.id'), nullable=False)
+    waiting_time = db.Column(db.String(100))
 
 
 
@@ -714,7 +718,86 @@ def add_psychologist_route():
     # Her vil du hente data fra request og kalle add_psychologist
     return "Psykolog lagt til"
 
-# Definer andre ruter her...
+@app.route('/merge-psychologists', methods=['GET'])
+def merge_psychologists_route():
+    psychologists = Psychologist.query.all()
+    normalized_psychologists = {}
+
+    # Normaliserer og grupperer psykologer basert på navn
+    for psychologist in psychologists:
+        normalized_name = psychologist.name.strip().lower()
+        if normalized_name in normalized_psychologists:
+            normalized_psychologists[normalized_name].append(psychologist)
+        else:
+            normalized_psychologists[normalized_name] = [psychologist]
+
+    merged_count = 0
+
+    # Behandler grupperte psykologer for sammenslåing
+    for normalized_name, group in normalized_psychologists.items():
+        if len(group) > 1:
+            print(f"Sammenfletter duplikater for: {normalized_name}")
+
+            master = group[0]
+            for dup in group[1:]:
+                # Sammenfletter informasjon fra duplikater
+                if not master.title and dup.title:
+                    master.title = dup.title
+                if not master.birth_year and dup.birth_year:
+                    master.birth_year = dup.birth_year
+                # Fortsett med tilsvarende logikk for andre felt
+
+                db.session.delete(dup)
+                merged_count += 1
+
+            db.session.commit()
+
+    print(f"Antall duplikater sammenslått: {merged_count}")
+    return jsonify({"message": f"Antall duplikater sammenslått: {merged_count}"})
+
+
+
+
+@app.route('/merge-clinics', methods=['GET'])
+def merge_clinics_route():
+    clinics = PrivateClinic.query.all()
+    normalized_clinics = {}
+
+    # Normaliserer og grupperer klinikker basert på navn
+    for clinic in clinics:
+        normalized_name = clinic.name.strip().lower()
+        if normalized_name in normalized_clinics:
+            normalized_clinics[normalized_name].append(clinic)
+        else:
+            normalized_clinics[normalized_name] = [clinic]
+
+    merged_count = 0
+
+    # Behandler grupperte klinikker for sammenslåing
+    for normalized_name, group in normalized_clinics.items():
+        if len(group) > 1:
+            print(f"Sammenfletter duplikater for: {normalized_name}")
+
+            master_clinic = group[0]
+            for dup in group[1:]:
+                # Sammenfletter informasjon fra duplikat klinikker
+                if not master_clinic.address and dup.address:
+                    master_clinic.address = dup.address
+                if not master_clinic.postal_code and dup.postal_code:
+                    master_clinic.postal_code = dup.postal_code
+                if not master_clinic.city and dup.city:
+                    master_clinic.city = dup.city
+                if not master_clinic.website and dup.website:
+                    master_clinic.website = dup.website
+                # Fortsett med tilsvarende logikk for andre felt
+
+                db.session.delete(dup)
+                merged_count += 1
+
+            db.session.commit()
+
+    print(f"Antall klinikker sammenslått: {merged_count}")
+    return jsonify({"message": f"Antall klinikker sammenslått: {merged_count}"})
 
 
 
